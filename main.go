@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"rhin/lib"
+	"rhin/pipe"
 )
 
 type Human struct {
@@ -46,17 +47,20 @@ func main() {
 	fmt.Println("Every cars are sport car:", lib.Every(cars, isSportCar))
 	fmt.Println("Some car are sport car:", lib.Some(cars, isSportCar))
 	fmt.Println("Filter on sport cars:", lib.Filter(cars, isSportCar))
-	fmt.Println("Map cars to speeds:", lib.Map(cars, func(item Car) Speed {
-		return Speed{
-			fast: item.maxSpeed > 180,
-		}
-	}))
+	fmt.Println("Map cars to speeds:", lib.Map(cars, func(item Car) Speed { return Speed{fast: isSportCar(item)} }))
 
-	// iterator.NewIterator(cars).Filter(isSportCar).Map(func(item Car) any {
-	// 	return Speed{
-	// 		fast: item.maxSpeed > 180,
-	// 	}
-	// })
+	res := pipe.P3(
+		cars,
+		pipe.Filter(func (car Car) bool {
+			return car.maxSpeed > 150
+		}),
+		pipe.Map(func (car Car) int {
+			return car.maxSpeed
+		}),
+		pipe.Some(func (speed int) bool {
+			return speed > 100
+		}),
+	)
 
-	// pipeline.NewPipeline(cars)
+	fmt.Println(res)
 }
